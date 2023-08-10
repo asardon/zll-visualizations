@@ -50,17 +50,10 @@ def getFairApr(ltv, loanTenorInYears, spotPrice, vol, riskFreeRate, q=0):
     return None
 
 def getFairFee(ltv, loanTenorInYears, spotPrice, vol, riskFreeRate, q=0):
-    def minFunc(fee):   
+    def minFunc(fee):
         y = spotPrice*ltv
         callPrice = getCallPrice(spotPrice, y/(1-fee), vol, loanTenorInYears, riskFreeRate, q)
         z = (1-fee)*(spotPrice - callPrice) - (y - fee*spotPrice)
-        
-        """
-        # old calculation methodology
-        callPrice = getCallPrice(spotPrice, y, vol, loanTenorInYears, riskFreeRate)
-        z = spotPrice - (1-fee)*callPrice - y
-        """
-        
         z = z * 100 if z < 10 else z # scale up z for small prices
         return z**2
     

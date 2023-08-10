@@ -17,14 +17,14 @@ def get_user_input():
     coll_token_decimals = st.sidebar.number_input('Coll. Token Decimals', min_value=0, max_value=18, value=18)
     return {'spot': spot, 'vol': vol, 'r': r, 'loan_token_decimals': loan_token_decimals, 'coll_token_decimals': coll_token_decimals}
 
-def get_heatmap(func, title, spot, vol, r):
+def get_heatmap(func, title, vol, r):
     fig, ax = plt.subplots()
     heatmap_res = []
 
     for ltv in LTVs:
         tmp = []
         for tenor in TENORS:
-            res = func(ltv, tenor/365, spot, vol, r)
+            res = func(ltv, tenor/365, 100, vol, r)
             tmp.append(res)
         heatmap_res.append(tmp)
     heatmap_res = np.array(heatmap_res, dtype=float)
@@ -73,8 +73,8 @@ st.sidebar.header('Input assumptions:')
 
 user_input = get_user_input()
 
-apr_heatmap_res, apr_heatmap_fig = get_heatmap(helpers.getFairApr, 'APR Heatmap', user_input['spot'], user_input['vol'], user_input['r'])
-fee_heatmap_res, fee_heatmap_fig = get_heatmap(helpers.getFairFee, 'Fee Heatmap', user_input['spot'], user_input['vol'], user_input['r'])
+apr_heatmap_res, apr_heatmap_fig = get_heatmap(helpers.getFairApr, 'APR Heatmap', user_input['vol'], user_input['r'])
+fee_heatmap_res, fee_heatmap_fig = get_heatmap(helpers.getFairFee, 'Fee Heatmap', user_input['vol'], user_input['r'])
 raw_apr_quote_tuples = get_raw_quote_tuples(apr_heatmap_res, user_input['spot'], user_input['loan_token_decimals'], user_input['coll_token_decimals'], False, True)
 raw_fee_quote_tuples = get_raw_quote_tuples(apr_heatmap_res, user_input['spot'], user_input['loan_token_decimals'], user_input['coll_token_decimals'], False, False)
 
