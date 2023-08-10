@@ -12,7 +12,7 @@ TENORS = [30, 40, 50, 60, 70, 80, 90, 120, 180] # in days
 def get_user_input():
     vol = st.sidebar.slider('Volatility (p.a.)', .01, 1.4, .5)
     r = st.sidebar.slider('Interest rate (p.a.)', .0, .1, .0)
-    spot = st.sidebar.number_input('Spot Price ($)', min_value=.01, max_value=5000., value=2000.)
+    spot = st.sidebar.number_input('Spot Price ($)', min_value=.01, max_value=100000., value=2000.)
     loan_token_decimals = st.sidebar.number_input('Loan Token Decimals', min_value=0, max_value=18, value=6)
     coll_token_decimals = st.sidebar.number_input('Coll. Token Decimals', min_value=0, max_value=18, value=18)
     return {'spot': spot, 'vol': vol, 'r': r, 'loan_token_decimals': loan_token_decimals, 'coll_token_decimals': coll_token_decimals}
