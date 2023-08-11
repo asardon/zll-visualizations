@@ -6,6 +6,9 @@ def getD1(S, K, vol, dt, r, q):
     return (np.log(S / K) + (r - q + vol**2 / 2) * dt) / \
         (vol * np.sqrt(dt))
 
+def getDelta(S, K, vol, dt, r, q):
+    return norm.cdf(getD1(S, K, vol, dt, r, q))
+
 def getCallPrice(spotPrice, strikePrice, vol, dt, riskFreeRate, q=0):
     if dt <= 0:
         return max([0, spotPrice - strikePrice])
