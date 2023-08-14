@@ -134,11 +134,12 @@ if(user_input['solve_for'] == 'APR'):
     heatmap_res, heatmap_fig = get_heatmap(helpers.getFairApr, 'APR Heatmap', ltv_selection_parsed, tenor_selection_parsed, user_input['vol'], user_input['r'])
 else:
     heatmap_res, heatmap_fig = get_heatmap(helpers.getFairFee, 'Upfront Fee Heatmap', ltv_selection_parsed, tenor_selection_parsed, user_input['vol'], user_input['r'])
-raw_quote_tuples = get_raw_quote_tuples(heatmap_res, ltv_selection_parsed, tenor_selection_parsed, user_input['spot'], user_input['loan_token_decimals'], user_input['coll_token_decimals'], False, user_input['solve_for'])
+raw_quote_tuples = get_raw_quote_tuples(heatmap_res, ltv_selection_parsed, tenor_selection_parsed, user_input['spot'], user_input['loan_token_decimals'], user_input['coll_token_decimals'], False, user_input['solve_for'] == 'APR')
 
 st.write(heatmap_fig)
-st.subheader('JSON Raw Quote Tuples', anchor=None, help=None)
-st.json(raw_quote_tuples, expanded=False)
 
 _, delta_heatmap_fig = get_delta_heatmap(heatmap_res, user_input['solve_for'] == 'APR', ltv_selection_parsed, tenor_selection_parsed, user_input['vol'], user_input['r'])
 st.write(delta_heatmap_fig)
+
+st.subheader('JSON Raw Quote Tuples', anchor=None, help=None)
+st.json(raw_quote_tuples, expanded=False)
