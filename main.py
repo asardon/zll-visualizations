@@ -22,8 +22,8 @@ def get_user_input():
     vol = st.sidebar.slider('Volatility (p.a.)', .01, 1.4, .5)
     r = st.sidebar.slider('Interest rate (p.a.)', .0, .1, .0)
 
-    ltv_selection = st.sidebar.multiselect('LTV', ('90%', '80%', '70%', '60%', '50%', '40%', '30%', '20%', '10%'), default=('70%', '60%', '50%'))
-    tenor_selection = st.sidebar.multiselect('LTV', ('30d', '40d', '50d', '60d', '70d', '80d', '90d', '100d', '110d', '120d', '130d', '140d', '150d', '160d', '170d', '180d'), default=('30d', '60d', '90d'))
+    ltv_selection = st.sidebar.multiselect('LTVs', ('90%', '80%', '70%', '60%', '50%', '40%', '30%', '20%', '10%'), default=('70%', '60%', '50%'))
+    tenor_selection = st.sidebar.multiselect('Tenors', ('30d', '40d', '50d', '60d', '70d', '80d', '90d', '100d', '110d', '120d', '130d', '140d', '150d', '160d', '170d', '180d'), default=('30d', '60d', '90d'))
 
     spot = st.sidebar.number_input('Spot Price ($)', min_value=.01, max_value=100000., value=2000.)
     loan_token_decimals = st.sidebar.number_input('Loan Token Decimals', min_value=0, max_value=18, value=6)
