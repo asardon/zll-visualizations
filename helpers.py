@@ -81,13 +81,13 @@ def getFairFee(ltv, loanTenorInYears, spotPrice, vol, riskFreeRate, q=0):
             
     return None
 
-def generateQuoteTuple(ltv, spotPrice, tenorInYears, apr, upfrontFee, loanTokenDecimals, collTokenDecimals, withOracle=False):            
+def generateQuoteTuple(ltv, spotPrice, tenorInYears, apr, upfrontFee, loanTokenDecimals, withOracle=False):            
     if withOracle:
         loanPerCollUnitOrLtv = str(int(ltv * 10 ** 18))
     else:
-        loanPerCollUnitOrLtv = str(int(ltv*spotPrice * 10 ** loanTokenDecimals))
+        loanPerCollUnitOrLtv = str(int(ltv * spotPrice * 10 ** loanTokenDecimals))
     interestRatePctInBase = str(int(apr * tenorInYears* 10 ** 18))
-    upfrontFeePctInBase = str(int(upfrontFee * 10 ** collTokenDecimals))
+    upfrontFeePctInBase = str(int(upfrontFee * 10 ** 18))
     tenor = str(int(tenorInYears * 60 * 60 * 24 * 365))
             
     return ({"loanPerCollUnitOrLtv": loanPerCollUnitOrLtv, "interestRatePctInBase": interestRatePctInBase, "upfrontFeePctInBase": upfrontFeePctInBase, "tenor": tenor})

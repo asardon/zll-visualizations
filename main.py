@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import numpy as np
 import helpers
@@ -22,13 +23,25 @@ def get_user_input():
     vol = st.sidebar.slider('Volatility (p.a.)', .01, 1.4, .5)
     r = st.sidebar.slider('Interest rate (p.a.)', .0, .1, .0)
 
-    ltv_selection = st.sidebar.multiselect('LTVs', ('90%', '80%', '70%', '60%', '50%', '40%', '30%', '20%', '10%'), default=('70%', '60%', '50%'))
-    tenor_selection = st.sidebar.multiselect('Tenors', ('30d', '40d', '50d', '60d', '70d', '80d', '90d', '100d', '110d', '120d', '130d', '140d', '150d', '160d', '170d', '180d'), default=('30d', '60d', '90d'))
+    ltv_selection = st.sidebar.multiselect('LTVs', ('95%', '90%', '85%', '80%', '75%', '70%', '65%', '60%', '55%', '50%', '45%', '40%', '35%', '30%', '25%', '20%', '15%', '10%'), default=('70%', '60%', '50%'))
+    tenor_selection = st.sidebar.multiselect('Tenors', ('10d', '20d', '30d', '40d', '50d', '60d', '70d', '80d', '90d', '100d', '110d', '120d', '130d', '140d', '150d', '160d', '170d', '180d'), default=('30d', '60d', '90d'))
 
-    spot = st.sidebar.number_input('Spot Price ($)', min_value=.01, max_value=100000., value=2000.)
-    loan_token_decimals = st.sidebar.number_input('Loan Token Decimals', min_value=0, max_value=18, value=6)
-    coll_token_decimals = st.sidebar.number_input('Coll. Token Decimals', min_value=0, max_value=18, value=18)
-    return {'solve_for': solve_for, 'ltv_selection': ltv_selection, 'tenor_selection': tenor_selection, 'spot': spot, 'vol': vol, 'r': r, 'loan_token_decimals': loan_token_decimals, 'coll_token_decimals': coll_token_decimals}
+    loan_token_decimals = st.sidebar.number_input('Loan Token Decimals', min_value=0, max_value=18, value=6, help="Note: this info is only needed when using the JSON output!")
+    spot = st.sidebar.number_input('Spot Price ($)', min_value=.01, max_value=100000., value=2000., help="Note: this info is only needed when using the JSON output!")
+
+    components.html(
+        """
+    <script>
+    const elements = window.parent.document.querySelectorAll('.stNumberInput div[data-baseweb="input"] > div')
+    console.log(elements)
+    elements[1].style.backgroundColor = 'red'
+    </script>
+    """,
+        height=0,
+        width=0,
+    )
+
+    return {'solve_for': solve_for, 'ltv_selection': ltv_selection, 'tenor_selection': tenor_selection, 'spot': spot, 'vol': vol, 'r': r, 'loan_token_decimals': loan_token_decimals}
 
 def get_heatmap(func, title, ltv_selection_parsed, tenor_selection_parsed, vol, r):
     fig, ax = plt.subplots()
@@ -110,14 +123,14 @@ def get_delta_heatmap(heatmap_res, is_apr, ltv_selection_parsed, tenor_selection
 
     return delta_heatmap_res, fig
 
-def get_raw_quote_tuples(heatmap_res, ltv_selection_parsed, tenor_selection_parsed, spot, loan_token_decimals, coll_token_decimals, with_oracle, is_apr):
+def get_raw_quote_tuples(heatmap_res, ltv_selection_parsed, tenor_selection_parsed, spot, loan_token_decimals, with_oracle, is_apr):
     quoteTuples = []
     for i, ltv in enumerate(ltv_selection_parsed):
         for j, tenor in enumerate(tenor_selection_parsed):
             try:
                 apr = heatmap_res[i][j] if is_apr else 0
                 fee = heatmap_res[i][j] if not is_apr else 0
-                quoteTuple = helpers.generateQuoteTuple(ltv, spot, tenor/365, apr, fee, loan_token_decimals, coll_token_decimals, with_oracle)
+                quoteTuple = helpers.generateQuoteTuple(ltv, spot, tenor/365, apr, fee, loan_token_decimals, with_oracle)
                 quoteTuples.append(quoteTuple)
             except Exception:
                 traceback.print_exc()
@@ -134,7 +147,7 @@ if(user_input['solve_for'] == 'APR'):
     heatmap_res, heatmap_fig = get_heatmap(helpers.getFairApr, 'APR Heatmap', ltv_selection_parsed, tenor_selection_parsed, user_input['vol'], user_input['r'])
 else:
     heatmap_res, heatmap_fig = get_heatmap(helpers.getFairFee, 'Upfront Fee Heatmap', ltv_selection_parsed, tenor_selection_parsed, user_input['vol'], user_input['r'])
-raw_quote_tuples = get_raw_quote_tuples(heatmap_res, ltv_selection_parsed, tenor_selection_parsed, user_input['spot'], user_input['loan_token_decimals'], user_input['coll_token_decimals'], False, user_input['solve_for'] == 'APR')
+raw_quote_tuples = get_raw_quote_tuples(heatmap_res, ltv_selection_parsed, tenor_selection_parsed, user_input['spot'], user_input['loan_token_decimals'], False, user_input['solve_for'] == 'APR')
 
 st.write(heatmap_fig)
 
