@@ -66,7 +66,11 @@ def get_heatmap(func, title, ltv_selection_parsed, tenor_selection_parsed, vol, 
             bg = cmap(normColors(heatmap_res[i][j]))
             v = 0 if (bg[0] + bg[1] + bg[2]) / 3 > 0.5 else 1
             c = (v, v, v, 1.)
-            ax.text(j, i, '{:.2f}%'.format(heatmap_res[i][j]*100),
+            if title == 'Strike':
+                text = '{:.2f}%\n({:+.2f}%)'.format(heatmap_res[i][j]*100, (heatmap_res[i][j]/ltv_selection_parsed[i]-1)*100)
+            else:
+                text = '{:.2f}%'.format(heatmap_res[i][j]*100)
+            ax.text(j, i, text,
                     ha='center', va='center', color=c, fontsize='x-small')
     
     # Show all ticks and label them with the respective list entries
