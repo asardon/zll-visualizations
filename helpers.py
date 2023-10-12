@@ -81,6 +81,37 @@ def getFairFee(ltv, loanTenorInYears, spotPrice, vol, riskFreeRate, q=0):
             
     return None
 
+def getFairStrike(ltv, loanTenorInYears, spotPrice, vol, riskFreeRate, q=0):
+    def minFunc(strike):
+        y = spotPrice*ltv
+        callPrice = getCallPrice(spotPrice, strike, vol, loanTenorInYears, riskFreeRate, q)
+        z = spotPrice - callPrice - y
+        z = z * 100 if z < 10 else z # scale up for small prices
+        return z**2
+
+    step_size = 0.1  # 10% step size
+    upper_bound = spotPrice*10
+    lower_bound = .0000001
+
+    # Generate initial guesses
+    initStrikeGuesses_increasing = np.arange(spotPrice, upper_bound, spotPrice*step_size)
+    initStrikeGuesses_decreasing = np.arange(spotPrice, lower_bound, -spotPrice*step_size)
+    initStrikeGuesses = np.concatenate([initStrikeGuesses_decreasing, initStrikeGuesses_increasing])
+
+    strikeBnds = (lower_bound, None)
+
+    for initStrikeGuess in initStrikeGuesses:
+        res = optimize.minimize(
+            minFunc,
+            args=(),
+            x0=[initStrikeGuess],
+            bounds=[strikeBnds])
+        if res["success"] and res["fun"] < 0.001:
+            y = ltv*spotPrice
+            strike = res['x'][0]
+            return strike/spotPrice
+    return None
+
 def generateQuoteTuple(ltv, spotPrice, tenorInYears, apr, upfrontFee, loanTokenDecimals, withOracle=False):            
     if withOracle:
         loanPerCollUnitOrLtv = str(int(ltv * 10 ** 18))

@@ -19,12 +19,12 @@ def parse_tenors(tenor_selection):
     return tenors
 
 def get_user_input():
-    solve_for = st.sidebar.selectbox('Solve for', options=('APR', 'Upfront Fee'))
+    solve_for = st.sidebar.selectbox('Solve for', options=('APR', 'Upfront Fee', 'Strike'))
     vol = st.sidebar.slider('Volatility (p.a.)', .01, 1.4, .5)
     r = st.sidebar.slider('Interest rate (p.a.)', .0, .1, .0)
 
-    ltv_selection = st.sidebar.multiselect('LTVs', ('95%', '90%', '85%', '80%', '75%', '70%', '65%', '60%', '55%', '50%', '45%', '40%', '35%', '30%', '25%', '20%', '15%', '10%'), default=('70%', '60%', '50%'))
-    tenor_selection = st.sidebar.multiselect('Tenors', ('10d', '20d', '30d', '40d', '50d', '60d', '70d', '80d', '90d', '100d', '110d', '120d', '130d', '140d', '150d', '160d', '170d', '180d'), default=('30d', '60d', '90d'))
+    ltv_selection = st.sidebar.multiselect('LTVs', ('99%', '98%', '97%', '96%', '95%', '94%', '93%', '92%', '91%', '90%', '85%', '80%', '75%', '70%', '65%', '60%', '55%', '50%', '45%', '40%', '35%', '30%', '25%', '20%', '15%', '10%'), default=('70%', '60%', '50%'))
+    tenor_selection = st.sidebar.multiselect('Tenors', ('1d', '2d', '3d', '4d', '5d', '6d', '7d', '10d', '20d', '30d', '40d', '50d', '60d', '70d', '80d', '90d', '100d', '110d', '120d', '130d', '140d', '150d', '160d', '170d', '180d'), default=('30d', '60d', '90d'))
 
     loan_token_decimals = st.sidebar.number_input('Loan Token Decimals', min_value=0, max_value=18, value=6, help="Note: this info is only needed when using the JSON output!")
     spot = st.sidebar.number_input('Spot Price ($)', min_value=.01, max_value=100000., value=2000., help="Note: this info is only needed when using the JSON output!")
@@ -93,7 +93,6 @@ def get_delta_heatmap(heatmap_res, is_apr, ltv_selection_parsed, tenor_selection
             k = s*ltv*(1+heatmap_res[i][j]*dt) if is_apr else s*ltv
             alpha = 1 if is_apr else 1 - heatmap_res[i][j]
             res = 1 - alpha * helpers.getDelta(s, k, vol, dt, r, 0)
-            print(tenor, ltv, s, k, dt, res)
             tmp.append(res)
         delta_heatmap_res.append(tmp)
     delta_heatmap_res = np.array(delta_heatmap_res, dtype=float)
@@ -145,13 +144,15 @@ tenor_selection_parsed = parse_tenors(user_input['tenor_selection'])
 
 if(user_input['solve_for'] == 'APR'):
     heatmap_res, heatmap_fig = get_heatmap(helpers.getFairApr, 'APR Heatmap', ltv_selection_parsed, tenor_selection_parsed, user_input['vol'], user_input['r'])
-else:
+elif(user_input['solve_for'] == 'Upfront Fee'):
     heatmap_res, heatmap_fig = get_heatmap(helpers.getFairFee, 'Upfront Fee Heatmap', ltv_selection_parsed, tenor_selection_parsed, user_input['vol'], user_input['r'])
+else:
+    heatmap_res, heatmap_fig = get_heatmap(helpers.getFairStrike, 'Strike', ltv_selection_parsed, tenor_selection_parsed, user_input['vol'], user_input['r'])
 raw_quote_tuples = get_raw_quote_tuples(heatmap_res, ltv_selection_parsed, tenor_selection_parsed, user_input['spot'], user_input['loan_token_decimals'], False, user_input['solve_for'] == 'APR')
 
 st.write(heatmap_fig)
 
-_, delta_heatmap_fig = get_delta_heatmap(heatmap_res, user_input['solve_for'] == 'APR', ltv_selection_parsed, tenor_selection_parsed, user_input['vol'], user_input['r'])
+_, delta_heatmap_fig = get_delta_heatmap(heatmap_res, user_input['solve_for'] == 'APR' or user_input['solve_for'] == 'Strike', ltv_selection_parsed, tenor_selection_parsed, user_input['vol'], user_input['r'])
 st.write(delta_heatmap_fig)
 
 st.subheader('JSON Raw Quote Tuples', anchor=None, help=None)
