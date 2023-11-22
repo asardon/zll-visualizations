@@ -20,7 +20,7 @@ def parse_tenors(tenor_selection):
 
 def get_user_input():
     solve_for = st.sidebar.selectbox('Solve for', options=('APR', 'Upfront Fee', 'Strike'))
-    vol = st.sidebar.slider('Volatility (p.a.)', .01, 1.4, .5)
+    vol = st.sidebar.slider('Volatility (p.a.)', .01, 5., .5)
     r = st.sidebar.slider('Interest rate (p.a.)', .0, .1, .0)
 
     ltv_selection = st.sidebar.multiselect('LTVs', ('99%', '98%', '97%', '96%', '95%', '94%', '93%', '92%', '91%', '90%', '85%', '80%', '75%', '70%', '65%', '60%', '55%', '50%', '45%', '40%', '35%', '30%', '25%', '20%', '15%', '10%'), default=('70%', '60%', '50%'))
